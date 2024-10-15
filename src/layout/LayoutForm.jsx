@@ -1,13 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useContext } from 'react';
 import {
   DashboardOutlined,
   ProductOutlined,
   PieChartOutlined,
   GiftOutlined,
   SettingOutlined,
+  LogoutOutlined,
 } from '@ant-design/icons';
-import { Breadcrumb, Layout, Menu, theme } from 'antd';
+import { Breadcrumb, Button, Layout, Menu, theme } from 'antd';
 import { useNavigate, useLocation, Outlet } from 'react-router-dom';
+import TheLayout from './TheLayout';
+import { UserContext } from '../contexts/UserProvider';
 
 const { Header, Content, Footer, Sider } = Layout;
 
@@ -40,6 +43,7 @@ const LayoutForm = () => {
   const [collapsed, setCollapsed] = useState(false);
   const navigate = useNavigate(); // Get navigate from React Router
   const location = useLocation(); // Get current route location
+  const {logout} = useContext(UserContext)
 
   const handleMenuClick = ({ key }) => {
     // Handle navigation based on the menu item clicked
@@ -63,7 +67,6 @@ const LayoutForm = () => {
         break;
     }
   };
-
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
@@ -91,7 +94,13 @@ const LayoutForm = () => {
         />
       </Sider>
       <Layout>
-        <Header style={{ padding: 0, background: colorBgContainer }} />
+        <Header style={{ padding: 10, background: colorBgContainer }} >
+        <div style={{ float: 'right' }}>
+        <Button type="primary" icon={<LogoutOutlined />} onClick={()=>{logout()}}>
+          Logout
+        </Button>
+      </div>
+        </Header>
         <Content style={{ margin: '0 16px' }}>
         <Breadcrumb style={{ margin: '16px 0' }} items={breadcrumbItems} />
           <div
@@ -103,7 +112,8 @@ const LayoutForm = () => {
             }}
           >
             {/* Outlet to render child routes */}
-            <Outlet />
+            {/* <Outlet /> */}
+            <TheLayout/>
           </div>
         </Content>
         <Footer style={{ textAlign: 'center' }}>

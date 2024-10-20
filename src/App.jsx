@@ -17,14 +17,14 @@ function App() {
     <>
       <Router>
           <Routes>
-            {user.auth?
+            
             <Route path="*" element={<LayoutForm />} />
-          :
-          <>
-          <Route path="/" element={<LoginForm />} />
-          <Route path="*" element={<Navigate to="/" replace />} /> 
-          </>
-          }
+          
+         
+          {/* <Route path="/" element={<LoginForm />} />
+          <Route path="*" element={<Navigate to="/" replace />} />  */}
+          
+          
           </Routes> 
       </Router>
     </>

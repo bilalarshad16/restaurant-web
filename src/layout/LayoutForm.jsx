@@ -5,12 +5,15 @@ import {
   PieChartOutlined,
   GiftOutlined,
   SettingOutlined,
-  LogoutOutlined,
+  PoweroffOutlined,
+  RightCircleOutlined,
 } from '@ant-design/icons';
 import { Breadcrumb, Button, Layout, Menu, theme } from 'antd';
 import { useNavigate, useLocation, Outlet } from 'react-router-dom';
 import TheLayout from './TheLayout';
 import { UserContext } from '../contexts/UserProvider';
+import { menuItems, routes } from '../routes';
+import { MyBreadcrumb } from './TheBreadCrumb';
 
 const { Header, Content, Footer, Sider } = Layout;
 
@@ -28,41 +31,43 @@ const items = [
   getItem('Product Management', '2', <ProductOutlined />),
   getItem('Category Management', '3', <PieChartOutlined />),
   getItem('Deals & Coupans', '4', <GiftOutlined />),
-  getItem('Settings', '5', <SettingOutlined />),
+  getItem('Settings', '5', <SettingOutlined />,
+  //    [
+  //   {
+  //     key: '5.1',
+  //     label: 'Option 5',
+  //   },
+  // ]
+  ),
 ];
 
-const breadcrumbNameMap = {
-  '/dashboard': 'Dashboard',
-  '/product-management': 'Product Management',
-  '/category-management': 'Category Management',
-  '/deals-coupans': 'Deals & Coupans',
-  '/settings': 'Settings',
-};
+
 
 const LayoutForm = () => {
   const [collapsed, setCollapsed] = useState(false);
-  const navigate = useNavigate(); // Get navigate from React Router
-  const location = useLocation(); // Get current route location
+  const navigate = useNavigate(); 
+  const location = useLocation(); 
   const {logout} = useContext(UserContext)
 
   const handleMenuClick = ({ key }) => {
-    // Handle navigation based on the menu item clicked
+    let selectedRoute = ''
+    let selectedChild = ''
+
+    if(key.includes('.')){
+      selectedRoute = menuItems.find(route=>route.key == key.split('.')[0])
+      selectedChild = selectedRoute.children.find(child=>child.key == key).route
+    }
+    else{
+     selectedRoute = routes.find(r=>r.key ==key).route
+    }
     switch (key) {
-      case '1':
-        navigate('/dashboard');
-        break;
-      case '2':
-        navigate('/product-management');
-        break;
-      case '3':
-        navigate('/category-management');
-        break;
-      case '4':
-        navigate('/deals-coupans');
-        break;
-      case '5':
-        navigate('/settings');
-        break;
+      case key:
+        if(selectedChild !== ''){
+          navigate(selectedChild)
+        }
+      else{
+        navigate(selectedRoute)
+        }
       default:
         break;
     }
@@ -71,14 +76,8 @@ const LayoutForm = () => {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
 
-  // Dynamically update breadcrumbs based on the route
-  const pathSnippets = location.pathname.split('/').filter((i) => i);
-  const breadcrumbItems = pathSnippets.map((_, index) => {
-    const url = `/${pathSnippets.slice(0, index + 1).join('/')}`;
-    return {
-      title: 'Home / '+ breadcrumbNameMap[url] || 'Home', // Use breadcrumb map for title
-    };
-  });
+  const pathSnippets = location.pathname;
+
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
@@ -86,23 +85,40 @@ const LayoutForm = () => {
         <div className="demo-logo-vertical" />
         <Menu
           theme="dark"
-          defaultSelectedKeys={['1']}
+          defaultSelectedKeys={['/dashboard']}
           mode="inline"
-          items={items}
+          items={menuItems
+            .filter(r => r.key !== 1) // Assuming you want to skip the first item (Home)
+            .map(r => ({
+              key: r.key, 
+              label: r.title, 
+              icon: React.createElement(r.icon),
+              route: r.route,
+              children: r.children ? r.children.map(child => ({
+                key: child.key,
+                label: child.title,
+                // icon: React.createElement(child.icon), // Child icon
+                route: child.route,
+              })) : undefined 
+            }))}
           className="mt-20"
-          onClick={handleMenuClick} // Handle menu clicks
-        />
+          onClick={handleMenuClick}
+       />
       </Sider>
       <Layout>
-        <Header style={{ padding: 10, background: colorBgContainer }} >
-        <div style={{ float: 'right' }}>
-        <Button type="primary" icon={<LogoutOutlined />} onClick={()=>{logout()}}>
-          Logout
+        <Header style={{ margin:15,padding: 10, background: colorBgContainer ,display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderRadius:5}} >
+   
+<MyBreadcrumb menuItems={menuItems} />
+        <Button 
+        variant='filled'
+         icon={<PoweroffOutlined style={{cursor:'pointer'}}/>}
+         style={{background: colorBgContainer}}
+        onClick={()=>{logout()}}>
         </Button>
-      </div>
+    
         </Header>
-        <Content style={{ margin: '0 16px' }}>
-        <Breadcrumb style={{ margin: '16px 0' }} items={breadcrumbItems} />
+        <Content style={{ margin: '16px 16px' }}>
+     
           <div
             style={{
               padding: 24,
@@ -111,8 +127,6 @@ const LayoutForm = () => {
               borderRadius: borderRadiusLG,
             }}
           >
-            {/* Outlet to render child routes */}
-            {/* <Outlet /> */}
             <TheLayout/>
           </div>
         </Content>

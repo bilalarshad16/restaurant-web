@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import { Form, Input, Button, Checkbox, Card, Avatar } from 'antd';
-import { UserOutlined, LockOutlined } from '@ant-design/icons';
+import { UserOutlined, LockOutlined, LoginOutlined } from '@ant-design/icons';
 import './LoginForm.css'; // CSS file for custom styling
 import { postData } from '../../services/NetworkService';
 import { UserContext } from '../../contexts/UserProvider';
@@ -58,7 +58,7 @@ const LoginForm = () => {
 
           <Form.Item>
             <Button type="primary" htmlType="submit" block>
-              Get Started
+              {<LoginOutlined/>}Login
             </Button>
           </Form.Item>
         </Form>

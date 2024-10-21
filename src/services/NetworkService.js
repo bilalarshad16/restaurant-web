@@ -1,7 +1,7 @@
 import axios from 'axios'
 
-// const config = { withCredentials: true }
-const config = { credentials: 'include'}
+const config = { withCredentials: true }
+// const config = { credentials: 'include'}
 
 export const postData = async (endPoint, data) => {
     try {

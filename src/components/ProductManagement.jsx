@@ -1,14 +1,27 @@
-import React, { useState } from 'react'
-import { Outlet } from 'react-router-dom'
+import React, { useEffect, useState } from 'react'
 import { getData } from '../services/NetworkService'
-import axios from 'axios'
-import { Button, Input, Space, Table, Tag, Drawer } from 'antd'
+import { Button, Input, Space, Table, Tag, Drawer, Spin } from 'antd'
 import { EditOutlined, DeleteOutlined, EyeOutlined } from '@ant-design/icons';
 
 function ProductManagement() {
-getData('products')
   const [fiilterClicked, setFilterClicked] = useState(false);
   const [drawerVisible, setDrawerVisible] = useState(false); // State for Drawer visibility
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true)
+
+  const getProducts = async () => {
+    const response = await getData('products');
+    if (response && response.data){
+      setData(response.data.filter(product => product.isActive)
+                            .map(product => ({...product, key: product.id}))
+      );
+    }
+    setLoading(false)
+  }
+  
+  useEffect(() => {
+    getProducts()
+  }, [])
 
   const showDrawer = () => {
     setDrawerVisible(true);
@@ -23,7 +36,7 @@ getData('products')
       title: 'Images',
       dataIndex: 'images',
       key: 'images',
-      render: (text) => <img src={text} alt="Product Image" width={50} height={50} />,
+      render: (text) => <img src={text || "https://www.thespruceeats.com/thmb/xNnc7LZcZ-sDeK_3Ox7RI0BXOE0=/5616x3744/filters:fill(auto,1)/GettyImages-676294571-7d58c21598a54c1b813fa12334fee6ad.jpg"} alt="Product Image" width={50} height={50} />,
     },
     {
       title: 'Name',
@@ -32,41 +45,31 @@ getData('products')
       render: (text) => <a>{text}</a>,
     },
     {
+      title: 'Price',
+      dataIndex: 'price',
+      key: 'price',
+    },
+    {
+      title: 'Description',
+      dataIndex: 'description',
+      key: 'description',
+    },
+    {
       title: 'Category',
       dataIndex: 'category',
       key: 'category',
+      render: category => <Tag color={category ? 'yellow' : 'red'} >{category ? category.name.toUpperCase() : "N/A"}</Tag>
     },
     {
       title: 'Actions',
       key: 'actions',
       render: (_, record) => (
         <Space size="middle">
-          <a><EditOutlined /></a> {/* Edit icon */}
-          <a><DeleteOutlined /></a> {/* Delete icon */}
-          <a><EyeOutlined /></a> {/* View icon */}
+          <a><EyeOutlined /></a>
+          <a><EditOutlined /></a>
+          <a style={{color: 'red'}}><DeleteOutlined /></a>
         </Space>
       ),
-    },
-  ];
-
-  const data = [
-    {
-      key: '1',
-      name: 'Product 1',
-      category: 'Category 1',
-      images: 'https://picsum.photos/200/300',
-    },
-    {
-      key: '2',
-      name: 'Product 2',
-      category: 'Category 2',
-      images: 'https://picsum.photos/200/301',
-    },
-    {
-      key: '3',
-      name: 'Product 3',
-      category: 'Category 3',
-      images: 'https://picsum.photos/200/302',
     },
   ];
 
@@ -99,7 +102,8 @@ getData('products')
         </div>
         </>
     )}
-    <Table columns={columns} dataSource={data} className='mt-16'/>
+    <Table columns={columns} dataSource={data} className='mt-16' loading={loading}/>
+    
     <Drawer title="Add Product" onClose={onClose} open={drawerVisible}>
         <p className='mt-3'>Product Name: <Input placeholder="Enter product name" /></p>
         <p className='mt-3'>Category: <Input placeholder="Enter category" /></p>

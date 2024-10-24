@@ -122,7 +122,7 @@ const LayoutForm = () => {
           <div
             style={{
               padding: 24,
-              minHeight: 360,
+              minHeight: 500,
               background: colorBgContainer,
               borderRadius: borderRadiusLG,
             }}
@@ -130,9 +130,9 @@ const LayoutForm = () => {
             <TheLayout/>
           </div>
         </Content>
-        <Footer style={{ textAlign: 'center' }}>
+        {/* <Footer style={{ textAlign: 'center' }}>
           Ant Design ©{new Date().getFullYear()} Created by Ant UED
-        </Footer>
+        </Footer> */}
       </Layout>
     </Layout>
   );

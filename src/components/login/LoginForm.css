@@ -32,8 +32,11 @@
     color: rgba(0, 0, 0, 0.25);
   }
   
-  button.ant-btn {
+  /* button.ant-btn {
+    background-color: #8D448B;
+    border-color: #8D448B;
+  } */
+  .login-btn{
     background-color: #8D448B;
     border-color: #8D448B;
   }
-  

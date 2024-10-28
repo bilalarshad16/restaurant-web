@@ -31,8 +31,10 @@ export const menuItems = [
     { key: 2, route: 'dashboard', title: 'Dashboard' , icon: DashboardOutlined},
     { key: 3, route: 'products', title: 'Products', icon: ProductOutlined },
     { key: 4, route: 'deals-coupans', title: 'Deals' , icon: GiftOutlined},
-    { key: 5, route: 'categories', title: 'Categories' , icon: PieChartOutlined,children:[
-        { key: 5.1, route: 'categories/add', title: 'Add Categories' , icon: PieChartOutlined}
-    ]},
+    { key: 5, route: 'categories', title: 'Categories' , icon: PieChartOutlined,
+    //   children:[
+    //     { key: 5.1, route: 'categories/add', title: 'Add Categories' , icon: PieChartOutlined}
+    // ]
+  },
     { key: 6, route: 'settings', title: 'Settings' , icon: SettingOutlined },
   ];

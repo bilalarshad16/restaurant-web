@@ -1,17 +1,27 @@
-import React, { useEffect, useState } from 'react'
-import { getData } from '../services/NetworkService'
+import React, { useEffect, useRef, useState } from 'react'
+import { deleteData, getData } from '../services/NetworkService'
 import { Button, Drawer, Input, Space, Table, Tag } from 'antd'
-import { DeleteOutlined, EditOutlined, EyeOutlined } from '@ant-design/icons'
+import { DeleteOutlined, EditOutlined, ExclamationCircleFilled, EyeOutlined } from '@ant-design/icons'
+import CategoryForm from '../forms/categoryForm'
+import { Modal, Radio } from "antd";
 
 function CategoryManagement() {
   const [data, setData] = useState([])
   const [loading, setLoading] = useState(true)
   const [fiilterClicked, setFilterClicked] =  useState(false)
   const [drawerVisible, setDrawerVisible] = useState(false)
+  const [add, setAdd] = useState(false)
+  const [item, setItem] = useState(null)
+  const [view, setView] = useState(false)
+  const [edit, setEdit] = useState(false)
+  const formRef = useRef();
+  const { confirm } = Modal;
   const getCategories = async()=>{
     const response = await getData('categories')
     if(response && response.data){
-      setData(response.data)
+      setData(response.data.map(category => ({...category, key: category.id})))
+      console.log(response.data);
+      
       setLoading(false)
     }
   }
@@ -20,13 +30,48 @@ function CategoryManagement() {
   },[])
 
   const showDrawer = () => {
+    setAdd(true)
     setDrawerVisible(true);
   };
 
   const onClose = () => {
+   
+    if (formRef.current) {
+      formRef.current.resetFields(); // Reset form fields when drawer closes
+    }
     setDrawerVisible(false);
+    if (add){
+    getCategories()
+    setAdd(false)
+  }
+  if(edit){setEdit(false)}
+  setItem(null)
+  setView(false)
   };
 
+  const handleDelete =async(id)=>{
+    confirm({
+      title: "Are you sure you want to delete?",
+      icon: <ExclamationCircleFilled />,
+      okText: "Yes",
+      okType: "danger",
+      cancelText: "No",
+      maskClosable: true,
+      keyboard: true,
+
+      onOk() {
+        deleteData("categories/" + id);
+        let newData = data.filter((o) => o.id !== id);
+        setData(newData)
+
+        console.log("OK");
+      },
+      onCancel() {
+        // setOpen(false)
+        console.log("Cancelled");
+      },
+    });
+  }
   const columns = [
     {
       title: '',
@@ -55,9 +100,9 @@ function CategoryManagement() {
       key: 'actions',
       render: (_, record) => (
         <Space size="middle">
-          <a><EyeOutlined /></a>
-          <a><EditOutlined /></a>
-          <a style={{color: 'red'}}><DeleteOutlined /></a>
+          <a><EyeOutlined  onClick={()=>{setItem(record);setView(true);showDrawer()}}/></a>
+          <a><EditOutlined onClick={()=>{setItem(record);setEdit(true);showDrawer()}}/></a>
+          <a style={{color: 'red'}}><DeleteOutlined onClick={()=>handleDelete(record.id)}/></a>
         </Space>
       ),
     },
@@ -88,20 +133,16 @@ function CategoryManagement() {
           </div>
           </div>
         <div className='mt-6'>
-          <Button type='primary'>Submit</Button>
+          <Button type='primary' className='bg-black'>Submit</Button>
         </div>
         </div>
         </>
     )}
     <Table columns={columns} dataSource={data} className='mt-16' loading={loading}/>
     
-    <Drawer title="Add Product" onClose={onClose} open={drawerVisible}>
-        <p className='mt-3'>Product Name: <Input placeholder="Enter product name" /></p>
-        <p className='mt-3'>Category: <Input placeholder="Enter category" /></p>
-        <p className='mt-3'>Image URL: <Input placeholder="Enter image URL" /></p>
-        <div style={{ marginTop: 20 }}>
-          <Button type="primary" onClick={onClose}>Submit</Button>
-        </div>
+    <Drawer title="Add Product" onClose={onClose} open={drawerVisible} width={800} destroyOnClose={true} >
+      <CategoryForm add={add} onClose={onClose} ref={formRef}  item={item} view={view} edit={edit}/>
+   
       </Drawer>
     </>
   )

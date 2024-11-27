@@ -12,7 +12,7 @@ const TheLayout = () => {
   return (
     <Suspense fallback={<div>Loading...</div>}>
     <Routes>
-      {routes.map(({ key, route, component: Component, children }) => (
+      {routes.filter(r=>r.route !== '/login').map(({ key, route, component: Component, children }) => (
         <Route key={key} path={route} element={<Component />}>
           {/* Check if the route has children and map over them */}
           {/* {children && children.map(({ key: childKey, route: childRoute, component: ChildComponent }) => (

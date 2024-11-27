@@ -1,6 +1,8 @@
 import axios from 'axios'
+// import { useNavigate } from 'react-router-dom'
 
 const config = { withCredentials: true }
+// const navigate = useNavigate()
 // const config = { credentials: 'include'}
 
 export const postData = async (endPoint, data) => {
@@ -10,17 +12,26 @@ export const postData = async (endPoint, data) => {
         return resp;
     } catch (error) {
         console.log(error);
+        if (error.response && error.response.status === 401) 
+            { //navigate('/login'); // For react-router-dom v6, use navigate('/login') }
         return error;
     }
-}
+}}
 
 export const putData = async (endPoint, data) => {
+
+     
     try {
-        const resp = await axios.put(import.meta.env.VITE_APP_SERVER_URL + endPoint, data, config)
+        const resp = await axios.patch(import.meta.env.VITE_APP_SERVER_URL + endPoint, data, config)
         // console.log(resp);
+        console.log('oeeeee', resp);
         return resp;
     } catch (error) {
-        console.log(error);
+        console.log('HELLO',error);
+        if (error.response && error.response.status === 401) 
+            { navigate('/login'); // For react-router-dom v6, use navigate('/login') }
+        return error;
+    }
         return error;
     }
 }

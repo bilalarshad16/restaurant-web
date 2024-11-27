@@ -1,19 +1,24 @@
-import React, { useEffect, useState } from 'react'
-import { getData } from '../services/NetworkService'
-import { Button, Input, Space, Table, Tag, Drawer, Spin } from 'antd'
-import { EditOutlined, DeleteOutlined, EyeOutlined } from '@ant-design/icons';
+import React, { useEffect, useRef, useState } from 'react'
+import { deleteData, getData } from '../services/NetworkService'
+import { Button, Input, Space, Table, Tag, Drawer, Spin, Modal } from 'antd'
+import { EditOutlined, DeleteOutlined, EyeOutlined, ExclamationCircleFilled } from '@ant-design/icons';
+import ProductForm from '../forms/ProductForm';
 
 function ProductManagement() {
   const [fiilterClicked, setFilterClicked] = useState(false);
   const [drawerVisible, setDrawerVisible] = useState(false); // State for Drawer visibility
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true)
-
+  const [add, setAdd] = useState(false)
+  const [item, setItem] = useState(null)
+  const [view, setView] = useState(false)
+  const [edit, setEdit] = useState(false)
+  const formRef = useRef();
+  const { confirm } = Modal;
   const getProducts = async () => {
     const response = await getData('products');
     if (response && response.data){
-      setData(response.data.filter(product => product.isActive)
-                            .map(product => ({...product, key: product.id}))
+      setData(response.data.map(product => ({...product, key: product.id}))
       );
     }
     setLoading(false)
@@ -31,6 +36,30 @@ function ProductManagement() {
     setDrawerVisible(false);
   };
 
+  const handleDelete =async(id)=>{
+    confirm({
+      title: "Are you sure you want to delete?",
+      icon: <ExclamationCircleFilled />,
+      okText: "Yes",
+      okType: "danger",
+      cancelText: "No",
+      maskClosable: true,
+      keyboard: true,
+
+      onOk: async()=> {
+        await deleteData("products/" + id);
+        let newData = await getData('products')
+        if(newData && newData.data){
+        setData(newData.data)
+      }
+        console.log("OK", newData);
+      },
+      onCancel() {
+        // setOpen(false)
+        console.log("Cancelled");
+      },
+    });
+  }
   const columns = [
     {
       title: 'Images',
@@ -61,13 +90,19 @@ function ProductManagement() {
       render: category => <Tag color={category ? 'yellow' : 'red'} >{category ? category.name.toUpperCase() : "N/A"}</Tag>
     },
     {
+      title: 'Status',
+      dataIndex: 'isActive',
+      key: 'isActive',
+      render: isActive => <Tag color={isActive ? 'blue' : 'red'} >{isActive ?'ACTIVE' : "IN-ACTIVE"}</Tag>
+    },
+    {
       title: 'Actions',
       key: 'actions',
       render: (_, record) => (
         <Space size="middle">
           <a><EyeOutlined /></a>
           <a><EditOutlined /></a>
-          <a style={{color: 'red'}}><DeleteOutlined /></a>
+          <a style={{color: 'red'}}><DeleteOutlined onClick={()=>handleDelete(record.id)}/></a>
         </Space>
       ),
     },
@@ -97,20 +132,16 @@ function ProductManagement() {
           </div>
           </div>
         <div className='mt-6'>
-          <Button type='primary'>Submit</Button>
+          <Button type='primary' className='bg-black'>Submit</Button>
         </div>
         </div>
         </>
     )}
     <Table columns={columns} dataSource={data} className='mt-16' loading={loading}/>
     
-    <Drawer title="Add Product" onClose={onClose} open={drawerVisible}>
-        <p className='mt-3'>Product Name: <Input placeholder="Enter product name" /></p>
-        <p className='mt-3'>Category: <Input placeholder="Enter category" /></p>
-        <p className='mt-3'>Image URL: <Input placeholder="Enter image URL" /></p>
-        <div style={{ marginTop: 20 }}>
-          <Button type="primary" onClick={onClose}>Submit</Button>
-        </div>
+    <Drawer title="Add Product" onClose={onClose} open={drawerVisible} width={800} destroyOnClose={true} >
+      <ProductForm add={add} onClose={onClose} ref={formRef}  item={item} view={view} edit={edit}/>
+   
       </Drawer>
     </>
   )

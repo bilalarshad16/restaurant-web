@@ -21,8 +21,8 @@ function App() {
             <Route path="*" element={<LayoutForm />} />
           :
           <>
-          <Route path="/" element={<LoginForm />} />
-          <Route path="*" element={<Navigate to="/" replace />} /> 
+          <Route path="/login" element={<LoginForm />} />
+          <Route path="*" element={<Navigate to="/login" replace />} /> 
           </>
           }
           </Routes> 

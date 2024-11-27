@@ -15,7 +15,7 @@ const DealsManagement = React.lazy(() => import('./components/DealsManagement'))
 const CategoryManagement = React.lazy(() => import('./components/CategoryManagement'));
 const Settings = React.lazy(() => import('./components/Settings'));
 const AddCat = React.lazy(() => import('./components/AddCat'));
-
+const Login = React.lazy(()=>import('././components/login/Login.jsx'))
 export const routes = [
   { key: 1, route: '/', title: 'Home', href: '/dashboard', component: Dashboard},
   { key: 2, route: 'dashboard', title: 'Dashboard', component: Dashboard },
@@ -23,7 +23,8 @@ export const routes = [
   { key: 4, route: 'deals-coupans', title: 'Deals', component: DealsManagement },
   { key: 5, route: 'categories', title: 'Categories', component: CategoryManagement },
   { key: 5, route: 'categories/add', title: 'Add Categories', component: AddCat},
-  { key: 6, route: 'settings', title: 'Settings', component: Settings },
+  { key: 6, route: '/login', title: 'Login', component: Login},
+  { key: 7, route: 'settings', title: 'Settings', component: Settings },
 ];
 
 export const menuItems = [

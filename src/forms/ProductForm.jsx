@@ -65,13 +65,15 @@ const ProductForm = ({ add, onClose, item, view, edit }) => {
 
   const onFinish = async (values) => {
     console.log("Success:", values);
-    if (typeof values.productIds[0] === "object") {
-      let pIds = [];
-      values.productIds.forEach((o) => pIds.push(o.id));
-      values.productIds = pIds;
-    }
+    values.price = parseFloat(values.price);
+    values.categoryId = parseFloat(values.categoryId);
+    // if (typeof values.productIds[0] === "object") {
+    //   let pIds = [];
+    //   values.productIds.forEach((o) => pIds.push(o.id));
+    //   values.productIds = pIds;
+    // }
     if (edit) {
-      const response = await putData("categories/" + item.id, values);
+      const response = await putData("products/" + item.id, values);
       console.log("dnai", response);
 
       if (response && response.data) {
@@ -79,7 +81,7 @@ const ProductForm = ({ add, onClose, item, view, edit }) => {
         onClose();
       }
     } else {
-      const response = await postData("categories", values);
+      const response = await postData("products", values);
       if (response && response.data) {
         form.resetFields();
         onClose();
@@ -97,7 +99,7 @@ const ProductForm = ({ add, onClose, item, view, edit }) => {
       onValuesChange={onFormVariantChange}
       variant={componentVariant}
       style={{
-        minWidth: 600,
+        minWidth: 400,
         overflowX: "hidden",
       }}
       initialValues={{
@@ -126,8 +128,8 @@ const ProductForm = ({ add, onClose, item, view, edit }) => {
       >
         <Input placeholder="Product Name"></Input>
       </Form.Item>
-      <Form.Item
-        name="name"
+      {/* <Form.Item
+        name="categoryame"
         rules={[
           {
             required: true,
@@ -136,9 +138,9 @@ const ProductForm = ({ add, onClose, item, view, edit }) => {
         ]}
       >
         <Input placeholder="Category Name"></Input>
-      </Form.Item>
+      </Form.Item> */}
       <Form.Item
-        name="desc"
+        name="description"
         rules={[
           {
             required: true,
@@ -170,17 +172,16 @@ const ProductForm = ({ add, onClose, item, view, edit }) => {
           defaultValue="0"
           min="0"
           max="10"
-          step="0.01"
+          step="0.00"
           // onChange={onChange}
           stringMode
         />
       </Form.Item>
-      {/* <Form.Item
-          name='productIds'>
-       <Select
+      {/* <Form.Item name="productIds">
+        <Select
           mode="multiple"
           style={{
-            width: '100%',
+            width: "100%",
           }}
           placeholder="Select Products"
           // defaultValue={[]}
@@ -195,7 +196,7 @@ const ProductForm = ({ add, onClose, item, view, edit }) => {
             </Space>
           )}
         />
-       </Form.Item> */}
+      </Form.Item> */}
       {!view && (
         <Form.Item
           wrapperCol={{

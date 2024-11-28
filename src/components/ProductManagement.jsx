@@ -221,7 +221,7 @@ function ProductManagement() {
         title="Add Product"
         onClose={onClose}
         open={drawerVisible}
-        width={600}
+        width={450}
         destroyOnClose={true}
       >
         <ProductForm

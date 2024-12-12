@@ -21,6 +21,8 @@ function ProductManagement() {
   const [edit, setEdit] = useState(false);
   const [filterName, setFilterName] = useState(""); // State for Name filter
   const [filterCategory, setFilterCategory] = useState(""); // State for Category filter
+  const [selectedProduct, setSelectedProduct] = useState(null);
+
   const formRef = useRef();
   const { confirm } = Modal;
 
@@ -47,6 +49,11 @@ function ProductManagement() {
 
   const onClose = () => {
     setDrawerVisible(false);
+  };
+
+  const handleViewProduct = (product) => {
+    setSelectedProduct(product);
+    setDrawerVisible(true);
   };
 
   const handleDelete = async (id) => {
@@ -121,21 +128,21 @@ function ProductManagement() {
       dataIndex: "price",
       key: "price",
     },
-    {
-      title: "Description",
-      dataIndex: "description",
-      key: "description",
-    },
-    {
-      title: "Category",
-      dataIndex: "category",
-      key: "category",
-      render: (category) => (
-        <Tag color={category ? "yellow" : "red"}>
-          {category ? category.name.toUpperCase() : "N/A"}
-        </Tag>
-      ),
-    },
+    // {
+    //   title: "Description",
+    //   dataIndex: "description",
+    //   key: "description",
+    // },
+    // {
+    //   title: "Category",
+    //   dataIndex: "category",
+    //   key: "category",
+    //   render: (category) => (
+    //     <Tag color={category ? "yellow" : "red"}>
+    //       {category ? category.name.toUpperCase() : "N/A"}
+    //     </Tag>
+    //   ),
+    // },
     {
       title: "Status",
       dataIndex: "isActive",
@@ -151,7 +158,7 @@ function ProductManagement() {
       key: "actions",
       render: (_, record) => (
         <Space size="middle">
-          <a>
+          <a onClick={() => handleViewProduct(record)}>
             <EyeOutlined />
           </a>
           <a>
@@ -232,6 +239,48 @@ function ProductManagement() {
           view={view}
           edit={edit}
         />
+      </Drawer>
+      <Drawer
+        title="View Product Details"
+        onClose={onClose}
+        open={drawerVisible}
+        width={450}
+        destroyOnClose={true}
+      >
+        {selectedProduct ? (
+          <div className="flex flex-col">
+            <h2 className="font-semibold text-3xl">{selectedProduct.name}</h2>
+            <img
+              src={
+                "https://www.thespruceeats.com/thmb/xNnc7LZcZ-sDeK_3Ox7RI0BXOE0=/5616x3744/filters:fill(auto,1)/GettyImages-676294571-7d58c21598a54c1b813fa12334fee6ad.jpg"
+              }
+              alt="Product Image"
+              width={250}
+              height={200}
+              style={{ marginTop: 30 }}
+            />
+            <div className="flex flex-col gap-2 text-lg">
+              <p className="mt-4">
+                <strong>Price:</strong> ${selectedProduct.price}
+              </p>
+              <p>
+                <strong>Description:</strong> {selectedProduct.description}
+              </p>
+              <p>
+                <strong>Category:</strong>{" "}
+                {selectedProduct.category
+                  ? selectedProduct.category.name
+                  : "N/A"}
+              </p>
+              <p>
+                <strong>Status:</strong>{" "}
+                {selectedProduct.isActive ? "Active" : "Inactive"}
+              </p>
+            </div>
+          </div>
+        ) : (
+          <Spin /> // Loader while product details load
+        )}
       </Drawer>
     </>
   );

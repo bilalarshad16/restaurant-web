@@ -8,7 +8,7 @@ import {
   EyeOutlined,
 } from "@ant-design/icons";
 import CategoryForm from "../forms/CategoryForm";
-import { Modal, Radio } from "antd";
+import { Modal } from "antd";
 
 function CategoryManagement() {
   const [data, setData] = useState([]);
@@ -19,19 +19,20 @@ function CategoryManagement() {
   const [item, setItem] = useState(null);
   const [view, setView] = useState(false);
   const [edit, setEdit] = useState(false);
+  const [productList, setProductList] = useState([]); // State to hold products for the drawer
   const formRef = useRef();
   const { confirm } = Modal;
+
   const getCategories = async () => {
     const response = await getData("categories");
     if (response && response.data) {
       setData(
         response.data.map((category) => ({ ...category, key: category.id }))
       );
-      console.log(response.data);
-
       setLoading(false);
     }
   };
+
   useEffect(() => {
     getCategories();
   }, []);
@@ -43,7 +44,7 @@ function CategoryManagement() {
 
   const onClose = () => {
     if (formRef.current) {
-      formRef.current.resetFields(); // Reset form fields when drawer closes
+      formRef.current.resetFields();
     }
     setDrawerVisible(false);
     if (add) {
@@ -55,6 +56,7 @@ function CategoryManagement() {
     }
     setItem(null);
     setView(false);
+    setProductList([]); // Clear product list
   };
 
   const handleDelete = async (id) => {
@@ -71,15 +73,13 @@ function CategoryManagement() {
         deleteData("categories/" + id);
         let newData = data.filter((o) => o.id !== id);
         setData(newData);
-
-        console.log("OK");
       },
       onCancel() {
-        // setOpen(false)
         console.log("Cancelled");
       },
     });
   };
+
   const columns = [
     {
       title: "",
@@ -103,7 +103,6 @@ function CategoryManagement() {
       key: "name",
       render: (text) => <a>{text}</a>,
     },
-
     {
       title: "Products",
       dataIndex: "products",
@@ -123,9 +122,9 @@ function CategoryManagement() {
           <a>
             <EyeOutlined
               onClick={() => {
-                setItem(record);
+                setProductList(record.products); // Set the products to show in the drawer
                 setView(true);
-                showDrawer();
+                setDrawerVisible(true);
               }}
             />
           </a>
@@ -158,25 +157,23 @@ function CategoryManagement() {
         </div>
       </div>
       {fiilterClicked && (
-        <>
-          <div className="h-44 rounded-lg w-full mt-8 px-2 bg-gray-100 ">
-            <div className="flex flex-row gap-4">
-              <div className="w-1/2">
-                <h2 className="mt-8">PRODUCT NAME</h2>
-                <Input placeholder="PRODUCT NAME" className="mt-3" />
-              </div>
-              <div className="w-1/2">
-                <h2 className="mt-8">CATEGORY</h2>
-                <Input placeholder="CATEGORY" className="mt-3" />
-              </div>
+        <div className="h-44 rounded-lg w-full mt-8 px-2 bg-gray-100 ">
+          <div className="flex flex-row gap-4">
+            <div className="w-1/2">
+              <h2 className="mt-8">PRODUCT NAME</h2>
+              <Input placeholder="PRODUCT NAME" className="mt-3" />
             </div>
-            <div className="mt-6">
-              <Button type="primary" className="bg-black">
-                Submit
-              </Button>
+            <div className="w-1/2">
+              <h2 className="mt-8">CATEGORY</h2>
+              <Input placeholder="CATEGORY" className="mt-3" />
             </div>
           </div>
-        </>
+          <div className="mt-6">
+            <Button type="primary" className="bg-black">
+              Submit
+            </Button>
+          </div>
+        </div>
       )}
       <Table
         columns={columns}
@@ -186,20 +183,35 @@ function CategoryManagement() {
       />
 
       <Drawer
-        title="Add Categories of Products"
+        title={view ? "View Products" : "Add Categories of Products"}
         onClose={onClose}
         open={drawerVisible}
         width={400}
         destroyOnClose={true}
       >
-        <CategoryForm
-          add={add}
-          onClose={onClose}
-          ref={formRef}
-          item={item}
-          view={view}
-          edit={edit}
-        />
+        {view ? (
+          <div>
+            <h2 className="font-semibold text-lg">Products:</h2>
+            {productList.length > 0 ? (
+              productList.map((product) => (
+                <div key={product.id} className="p-2 border-b">
+                  {product.name}
+                </div>
+              ))
+            ) : (
+              <p>No products available.</p>
+            )}
+          </div>
+        ) : (
+          <CategoryForm
+            add={add}
+            onClose={onClose}
+            ref={formRef}
+            item={item}
+            view={view}
+            edit={edit}
+          />
+        )}
       </Drawer>
     </>
   );
